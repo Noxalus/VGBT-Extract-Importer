@@ -43,19 +43,13 @@ function getMp3Data($input_dir)
 			{
 
 				$extract_data = array();
-				$extract_data['url'] = $complete_path;
+				$extract_data['url'] = str_replace(__ROOT__, '', $complete_path);
 
 				$md5 = md5_file($complete_path);
 
 				$extract_data['md5'] = $md5;
 
 				$data = $getID3->analyze($complete_path);
-
-				/*
-				echo '<pre>';
-				print_r($data);
-				echo '</pre>';
-				*/
 
 				$extract_data['filesize'] = $data['filesize'];
 				$extract_data['bitrate'] = $data['bitrate'];
@@ -187,7 +181,7 @@ function insertExtract($pdo, $data)
 				$last_insert_id = $pdo->lastInsertId();
 
 				// We move the mp3 file to output folder
-				$output_complete_path = $output_dir . $last_insert_id . '.mp3';
+				$output_complete_path = MEDIA_OUTPUT_FOLDER . $last_insert_id . '.mp3';
 				copy($data['url'], $output_complete_path);
 
 				// Initialize getID3 tag-writing module 
