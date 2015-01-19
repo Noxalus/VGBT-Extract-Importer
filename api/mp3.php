@@ -1,6 +1,7 @@
 <?php
 
-require_once('getid3/getid3/getid3.php');
+require_once('../config/config.php');
+require_once(__ROOT__ . 'libs/getid3/getid3.php');
 
 function smartReadFile($location, $filename, $mimeType = 'application/octet-stream')
 {	
@@ -72,8 +73,8 @@ $extractId = 1;
 if (!empty($_REQUEST['id']))
 	$extractId = intval($_REQUEST["id"]);
 
-$extractsPath = "../telecharger/data/blind/extraits/";
-$filePath = $extractsPath . "extrait" . $extractId . ".mp3";
+$extractsPath = MEDIA_OUTPUT_FOLDER;
+$filePath = $extractsPath . $extractId . ".mp3";
 
 smartReadFile($filePath, "extract.mp3", 'audio/mpeg');
 
