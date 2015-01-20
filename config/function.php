@@ -71,6 +71,12 @@ function getMp3Data($input_dir)
 				$artist = "";
 				$year = "";
 
+				/*
+				echo '<pre>';
+				print_r($data);
+				echo '</pre>';
+				*/
+
 				if (!empty($data['tags']['id3v2']))
 				{
 					$tags = $data['tags']['id3v2'];
@@ -86,7 +92,8 @@ function getMp3Data($input_dir)
 					$title = $tags['title'][0];
 					$album = $tags['album'][0];
 
-					$year = $tags['year'][0];
+					if (!empty($tags['year']))
+						$year = $tags['year'][0];
 				}
 				else if (!empty($data['tags']['id3v1']))
 				{
@@ -95,7 +102,9 @@ function getMp3Data($input_dir)
 					$title = $tags['title'][0];
 					$album = $tags['album'][0];
 					$artist = $tags['artist'][0];
-					$year = $tags['year'][0];
+
+					if (!empty($tags['year']))
+						$year = $tags['year'][0];
 				}
 
 				if ($track_number == -1)
@@ -226,6 +235,13 @@ function getAllComposers($pdo)
 function getAllGames($pdo)
 {
 	$sql = $pdo->query('SELECT id, name FROM vgbt_games');
+
+	return $sql->fetchAll();
+}
+
+function getAllAlbums($pdo)
+{
+	$sql = $pdo->query('SELECT id, name FROM vgbt_albums');
 
 	return $sql->fetchAll();
 }
