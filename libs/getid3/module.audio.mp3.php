@@ -624,13 +624,13 @@ class getid3_mp3 extends getid3_handler
 
 
 				// should be safe to leave this at 'vbr' and let it be overriden to 'cbr' if a CBR preset/mode is used by LAME
-//				if (substr($headerstring, $VBRidOffset, strlen('Info')) == 'Xing') {
+				if (substr($headerstring, $VBRidOffset, strlen('Info')) == 'Xing') {
 					$thisfile_mpeg_audio['bitrate_mode'] = 'vbr';
 					$thisfile_mpeg_audio['VBR_method']   = 'Xing';
-//				} else {
-//					$ScanAsCBR = true;
-//					$thisfile_mpeg_audio['bitrate_mode'] = 'cbr';
-//				}
+				} else {
+					$ScanAsCBR = true;
+					$thisfile_mpeg_audio['bitrate_mode'] = 'cbr';
+				}
 
 				$thisfile_mpeg_audio['xing_flags_raw'] = getid3_lib::BigEndian2Int(substr($headerstring, $VBRidOffset + 4, 4));
 
