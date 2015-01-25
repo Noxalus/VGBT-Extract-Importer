@@ -1,17 +1,18 @@
 <?php
 require_once('../../config/config.php');
 require_once(__ROOT__ . 'config/mysql.php');
+require_once(__ROOT__ . 'config/function.php');
 ?>
 
-<h1>Add a game</h1>
+<h1>Display games</h1>
 
 <?php	
 if (!empty($_POST['game_name']) && !empty($_POST['game_serie']))
 {
-
 	$game_name = $_POST['game_name'];
 	$game_serie_id = $_POST['game_serie'];
-	$spin_off = !empty($_POST['spin_off']);
+	$release_date = $_POST['release_date'];
+	$console_id = $_POST['console'];
 
 	$sql = $pdo->prepare('SELECT id FROM vgbt_games WHERE name = ?');
 	$sql->bindValue(1, $game_name, PDO::PARAM_STR);
@@ -24,10 +25,12 @@ if (!empty($_POST['game_name']) && !empty($_POST['game_serie']))
 		INSERT INTO 
 			vgbt_games(
 				name,
-				spin_off,
+				game_serie,
+				release_date,
 				date
 			) 
 		VALUES(
+			?,
 			?,
 			?,
 			NOW()
@@ -35,44 +38,46 @@ if (!empty($_POST['game_name']) && !empty($_POST['game_serie']))
 
 		$sql = $pdo->prepare($insert);
 		$sql->bindValue(1, $game_name, PDO::PARAM_STR);
-		$sql->bindValue(2, $spin_off, PDO::PARAM_BOOL);
+		if ($game_serie_id != -1)
+			$sql->bindValue(2, $game_serie_id, PDO::PARAM_STR);
+		else
+			$sql->bindValue(2, null, PDO::PARAM_STR);
+		$sql->bindValue(3, $release_date, PDO::PARAM_STR);
 
 		try 
 		{
 			$success = $sql->execute();
 		    if ($success)
 		    {
-				echo '<b>' . $game_name . '</b> has been successfully added to the database!';
+				echo '<b>' . $game_name . '</b> has been successfully added to the database!<br>';
 
 				$last_insert_id = $pdo->lastInsertId();
 
-				// We insert the link between the new game and the game serie
-				if ($game_serie_id != -1)
-				{
-					$insert = "
+				$insert = "
 					INSERT INTO 
-						vgbt_game_game_serie_links(
-							id_game,
-							id_game_serie
+						vgbt_game_console_links(
+							game_id,
+							console_id
 						) 
 					VALUES(
 						?,
 						?
-					)";
+				)";
 
-					$sql = $pdo->prepare($insert);
-					$sql->bindValue(1, $last_insert_id, PDO::PARAM_INT);
-					$sql->bindValue(2, $game_serie_id, PDO::PARAM_INT);
+				$sql = $pdo->prepare($insert);
+				$sql->bindValue(1, $last_insert_id, PDO::PARAM_INT);
+				$sql->bindValue(2, $console_id, PDO::PARAM_INT);
 
-					$success = $sql->execute();
-				    if ($success)
-						echo '<b>' . $game_name . '</b> has been successfully linked with its game serie into the database!';
-				}
+				$success = $sql->execute();
+			    if ($success)
+					echo '<b>' . $game_name . '</b> has been successfully linked with its console into the database!<br>';
 			}
 		} catch (PDOException $e) 
 		{
 		    echo 'Error : ' . $e->getMessage();
 		}
+
+		echo '<a href="add_game.php">Add another</a>';
 	}
 	else
 	{
@@ -88,6 +93,8 @@ else
 	{
 		$game_series[] = array('id' => $data['id'], 'name' => $data['name']);
 	}
+
+	$consoles = getAllConsoles($pdo);
 ?>
 
 <form method="POST">
@@ -97,22 +104,33 @@ else
 	</p>
 
 	<p>
-		<label for="game_serie">Game serie</label>
-		<select name="game_serie" id="game_serie">
-			<option value="-1">None</option>
-			<?php
-			foreach($game_series as $data)
-			{
-				echo '<option value="' . $data['id'] . '">' . $data['name'] . '</option>';
-			}
-			?>
-		</select>
-		<a href="add_game_serie.php">Add</a>
-	</p>
-
-	<p>
-		<label for="spin_off">Spin-off?</label>
-		<input type="checkbox" name="spin_off" id="spin_off" />
+		<p>
+			<label for="console">Console</label>
+			<select name="console" id="console">
+				<option value="-1">None</option>
+				<?php
+				foreach($consoles as $console)
+				{
+					echo '<option value="' . $console['id'] . '">' . $console['name'] . '</option>';
+				}
+				?>
+			</select>
+		</p>
+		<p>
+			<input type="date" name="release_date" />
+		</p>
+		<p>
+			<select name="game_serie" id="game_serie">
+				<option value="-1">None</option>
+				<?php
+				foreach($game_series as $game_serie)
+				{
+					echo '<option value="' . $game_serie['id'] . '">' . $game_serie['name'] . '</option>';
+				}
+				?>
+			</select>
+			<a href="add_game_serie.php">Add</a>
+		</p>
 	</p>
 
 	<p>

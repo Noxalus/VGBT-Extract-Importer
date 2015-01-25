@@ -11,9 +11,9 @@ if (!empty($_POST['album_name']))
 	$sql = $pdo->prepare('SELECT id FROM vgbt_albums WHERE name = ?');
 	$sql->bindValue(1, $album_name, PDO::PARAM_STR);
 	$sql->execute();		
-	$game_serie_id = $sql->fetchColumn();
+	$album_id = $sql->fetchColumn();
 
-	if(!$game_serie_id)
+	if(!$album_id)
 	{
 		$insert = "
 		INSERT INTO 
