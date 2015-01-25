@@ -151,7 +151,7 @@ if (!empty($_POST['input_dir']) &&
 				<td>
 					<select onchange="changeAllSelect('disc_select', this.value)">
 						<?php
-						for ($i = 0; $i < 6; $i++)
+						for ($i = 1; $i < 6; $i++)
 						{
 							echo '<option value="' . $i . '">' . $i . '</option>';
 						}
@@ -209,7 +209,7 @@ if (!empty($_POST['input_dir']) &&
 				<td>
 					<select name="extract_disc_number[]" class="disc_select">
 						<?php
-						for ($i = 0; $i < 6; $i++)
+						for ($i = 1; $i < 6; $i++)
 						{
 							echo '<option value="' . $i . '">' . $i . '</option>';
 						}
@@ -268,6 +268,10 @@ if (!empty($_POST['input_dir']) &&
 }
 else
 {
+	if (!empty($_POST['input_dir']))
+	{
+		echo 'This folder doesn\'t exist: <b>' . $_POST['input_dir'] . '</b><br>';
+	}
 ?>
 	<p>
 		<a href="add/add_game.php">Add a game</a>

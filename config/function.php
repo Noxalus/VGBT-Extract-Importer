@@ -62,7 +62,11 @@ function getMp3Data($input_dir)
 
 				if ($bitrate_mode != 'cbr')
 				{
-					echo "Error: This music has not a constant bitrate!";
+					echo 'Error: This music has not a constant bitrate! (name: ' . $file . ', bitrate mode: ' . $bitrate_mode . ')';
+
+					echo '<pre>';
+					print_r($data);
+					echo '</pre>';
 					die();
 				}
 
