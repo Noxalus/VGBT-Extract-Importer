@@ -1,7 +1,6 @@
 <?php
 
 require_once('../config/config.php');
-require_once(__ROOT__ . '/config/mysql.php');
 
 require_once(__ROOT__ . '/config/mysql.php');
 require_once(__ROOT__ . '/config/function.php');
@@ -37,7 +36,12 @@ if (!empty($_POST['input_dir']) &&
 {
 	$input_dir = '';
 	if (is_dir($_POST['input_dir']))
-		$input_dir =  __ROOT__ . $_POST['input_dir'] . '/';
+	{
+		if (!strpos($_POST['input_dir'], __ROOT__))
+			$input_dir = $_POST['input_dir'] . '/';
+		else
+			$input_dir =  __ROOT__ . $_POST['input_dir'] . '/';
+	}
 	else if (is_dir(__ROOT__ . $_POST['input_dir']))
 		$input_dir = __ROOT__ . $_POST['input_dir'] . '/';
 	else if (is_dir(MEDIA_INPUT_FOLDER . $_POST['input_dir']))
@@ -103,7 +107,7 @@ if (!empty($_POST['input_dir']) &&
 ?>
 	<p>
 		<b>Warning</b>: One or more of the processed files composer are not in the database, 
-		please <a href="#" onclick="databaseInsert('add/add_composer.php', {'composer_name': '<?php echo $missing_composers[0]; ?>'})">add</a> 
+		please <a href="#" onclick="databaseInsert('add/add_composer.php', {'composer_name': '<?php echo str_replace('"', '', $missing_composers[0]); ?>'})">add</a> 
 		them before to import each extract!
 	</p>
 <?php
@@ -114,7 +118,7 @@ if (!empty($_POST['input_dir']) &&
 ?>
 	<p>
 		<b>Warning</b>: One or more of the processed files album are not in the database, 
-		please <a href="#" onclick="databaseInsert('add/add_album.php', {'album_name': '<?php echo $missing_albums[0]; ?>'})">add</a> 
+		please <a href="#" onclick="databaseInsert('add/add_album.php', {'album_name': '<?php echo str_replace('"', '', $missing_albums[0]); ?>'})">add</a> 
 		them before to import each extract!
 	</p>
 <?php

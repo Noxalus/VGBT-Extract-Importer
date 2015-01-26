@@ -4,6 +4,8 @@ require_once('config.php');
 require_once('mysql.php');
 require_once(__ROOT__ . 'libs/getid3/getid3.php');
 
+/** API **/
+
 function getRandomQuiz($pdo, $questionNumber = 1, $type = 'nom')
 {
 	$sql = $pdo->query('
@@ -17,10 +19,67 @@ function getRandomQuiz($pdo, $questionNumber = 1, $type = 'nom')
 		ORDER BY 
 			RAND() 
 		LIMIT 
-			' . ($questionNumber + ($questionNumber * 3)));
+			' . ($questionNumber + ($questionNumber * 3))
+	);
 	
 	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
 }
+
+function getRandomExtractQuiz($pdo, $questionNumber = 1)
+{
+	$sql = $pdo->query('
+		SELECT 
+			id, name
+		FROM 
+			vgbt_extracts
+		GROUP BY 
+			name 
+		ORDER BY 
+			RAND() 
+		LIMIT 
+			' . ($questionNumber + ($questionNumber * 3))
+	);
+	
+	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
+}
+
+function getRandomGameQuiz($pdo, $questionNumber = 1)
+{
+	$sql = $pdo->query('
+		SELECT 
+			id, game_id
+		FROM 
+			vgbt_extracts
+		GROUP BY 
+			name 
+		ORDER BY 
+			RAND() 
+		LIMIT 
+			' . $questionNumber
+	);
+	
+	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
+}
+
+function getRandomComposerQuiz($pdo, $questionNumber = 1)
+{
+	$sql = $pdo->query('
+		SELECT 
+			id, composer_id
+		FROM 
+			vgbt_extracts
+		GROUP BY 
+			name 
+		ORDER BY 
+			RAND() 
+		LIMIT 
+			' . $questionNumber
+	);
+	
+	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
+}
+
+/** MP3 **/
 
 function getMp3Data($input_dir)
 {
@@ -44,7 +103,7 @@ function getMp3Data($input_dir)
 
 				$extract_data = array();
 				$extract_data['absolute_url'] = $complete_path;
-				$extract_data['url'] = str_replace(__ROOT__, '', $complete_path);
+				$extract_data['url'] = str_replace(__ROOT__, '/', $complete_path);
 
 				$md5 = md5_file($complete_path);
 
@@ -136,6 +195,11 @@ function getMp3Data($input_dir)
 						$track_number = (int)$matches[1];
 						$title = $matches[2];
 					}
+				}
+				
+				if (strlen($track_number) > 2)
+				{
+					$track_number = substr($track_number, 1);
 				}
 
 				// echo 'Track number: ' . $track_number . '<br />';
@@ -446,6 +510,34 @@ function getAllConsoles($pdo)
 	$sql = $pdo->query('SELECT id, name FROM vgbt_consoles');
 
 	return $sql->fetchAll();
+}
+
+function getAllComposersAsAssociativeArray($pdo)
+{
+	$sql = $pdo->query('SELECT id, name FROM vgbt_composers');
+
+	$composers = array();
+
+	while ($data = $sql->fetch())
+	{
+		$composers[$data['id']] = $data['name'];
+	}
+
+	return $composers;
+}
+
+function getAllGamesAsAssociativeArray($pdo)
+{
+	$sql = $pdo->query('SELECT id, name FROM vgbt_games');
+
+	$games = array();
+
+	while ($data = $sql->fetch())
+	{
+		$games[$data['id']] = $data['name'];
+	}
+
+	return $games;
 }
 
 ?>

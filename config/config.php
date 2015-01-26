@@ -1,6 +1,6 @@
 <?php
 
-define('__ROOT__', dirname(dirname(__FILE__)) . '/');
+define('__ROOT__', dirname(dirname(__FILE__)) . '\\');
 
 define('PDO_DATABASE', 'vgbt');
 define('PDO_USER', 'root');
