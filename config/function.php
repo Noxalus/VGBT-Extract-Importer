@@ -6,23 +6,17 @@ require_once(__ROOT__ . 'libs/getid3/getid3.php');
 
 /** API **/
 
-function getRandomQuiz($pdo, $questionNumber = 1, $type = 'nom')
+function getExtractNumber($pdo)
 {
 	$sql = $pdo->query('
 		SELECT 
-			blind_extraits_id, 
-			blind_extraits_' . $type . ' 
+			COUNT(*) 
 		FROM 
-			site_blind_extraits 
-		GROUP BY 
-			blind_extraits_' . $type . ' 
-		ORDER BY 
-			RAND() 
-		LIMIT 
-			' . ($questionNumber + ($questionNumber * 3))
+			vgbt_extracts
+		'
 	);
 	
-	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
+	return $sql->fetchColumn();
 }
 
 function getRandomExtractQuiz($pdo, $questionNumber = 1)
