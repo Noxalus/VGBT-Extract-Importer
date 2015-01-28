@@ -178,17 +178,14 @@ function getMp3Data($input_dir)
 					$title = str_replace('.' . $extension, '', $file);
 				}
 
-				if ($track_number == -1)
-				{
-					$regex_pattern = "#([0-9]+)\s*-\s*(.*)#";
-					$matches = array();
-					preg_match($regex_pattern, $title, $matches);
+				$regex_pattern = "#([0-9]+)\s*-\s*(.*)#";
+				$matches = array();
+				preg_match($regex_pattern, $title, $matches);
 
-					if (count($matches) == 3)
-					{
-						$track_number = (int)$matches[1];
-						$title = $matches[2];
-					}
+				if (count($matches) == 3)
+				{
+					$track_number = (int)$matches[1];
+					$title = $matches[2];
 				}
 				
 				if (strlen($track_number) > 2)
@@ -218,11 +215,11 @@ function getMp3Data($input_dir)
 	return $extracts_data;
 }
 
-/** Insert function **/
+/** Insert functions **/
 
 function insertExtract($pdo, $extract_data, $extract_linked_data)
 {
-
+	/*
 	echo '<pre>';
 	print_r($extract_data);
 	echo '</pre>';
@@ -232,6 +229,7 @@ function insertExtract($pdo, $extract_data, $extract_linked_data)
 	echo '</pre>';
 
 	echo '<hr />';
+	*/
 
 	$sql = $pdo->prepare('SELECT COUNT(*) FROM vgbt_extracts WHERE md5= ?');
 	$sql->bindValue(1, $extract_data['md5'], PDO::PARAM_STR);
@@ -289,12 +287,7 @@ function insertExtract($pdo, $extract_data, $extract_linked_data)
 				$extract_id = $pdo->lastInsertId();
 
 				// We link the external data related to this extract
-				/*
-				linkExtractName($pdo, $extractId, $extractNameId);
-				linkExtractGame($pdo, $extractId, $extract_linked_data['game_id'])
-				linkExtractComposer($pdo, $extractId, $extract_linked_data['composer_id']);
-				*/
-				linkExtractAlbum($pdo, $extract_id, $extract_linked_data['album_id'], $extract_linked_data['track_number']);
+				linkExtractAlbum($pdo, $extract_id, $extract_linked_data['album_id'], $extract_linked_data['disc_number'], $extract_linked_data['track_number']);
 
 				// We move the mp3 file to output folder
 				$output_complete_path = MEDIA_OUTPUT_FOLDER . $extract_id . '.mp3';
@@ -311,13 +304,13 @@ function insertExtract($pdo, $extract_data, $extract_linked_data)
 					{ 
 						echo 'There were some warnings:<br>' . implode('<br><br>', $tagwriter->warnings) . '<br>'; 
 					}
+
+					return true;
 				} 
 				else 
 				{ 
 					echo 'Failed to write tags!<br>' . implode('<br><br>', $tagwriter->errors) . '<br>'; 
 				}
-
-				echo '<hr />';
 			}
 		}
 		else
@@ -325,6 +318,129 @@ function insertExtract($pdo, $extract_data, $extract_linked_data)
 			echo 'Error: This mp3 file already exists in the database!<br>';
 		}
 	}
+
+	return false;
+}
+
+function insert_extracts($pdo, $post)
+{
+	if (!empty($post['extract_track_number']) && is_array($post['extract_track_number']))
+	{
+		echo '<pre>';
+		print_r($post);
+		echo '</pre>';
+
+		die();
+		$extract_number = count($post['extract_track_number']);
+
+		if (!empty($post['extract_name']) && is_array($post['extract_name']) && count($post['extract_name']) == $extract_number &&
+			!empty($post['extract_album_id']) && is_array($post['extract_album_id']) && count($post['extract_album_id']) == $extract_number &&
+			!empty($post['extract_game_id']) && is_array($post['extract_game_id']) && count($post['extract_game_id']) == $extract_number &&
+			!empty($post['extract_composer_id']) && is_array($post['extract_composer_id']) && count($post['extract_composer_id']) == $extract_number &&
+			!empty($post['extract_data_url']) && is_array($post['extract_data_url']) && count($post['extract_data_url']) == $extract_number &&
+			!empty($post['extract_data_md5']) && is_array($post['extract_data_md5']) && count($post['extract_data_md5']) == $extract_number &&
+			!empty($post['extract_data_filesize']) && is_array($post['extract_data_filesize']) && count($post['extract_data_filesize']) == $extract_number &&
+			!empty($post['extract_data_bitrate']) && is_array($post['extract_data_bitrate']) && count($post['extract_data_bitrate']) == $extract_number &&
+			!empty($post['extract_data_sample_rate']) && is_array($post['extract_data_sample_rate']) && count($post['extract_data_sample_rate']) == $extract_number &&
+			!empty($post['extract_data_encoding']) && is_array($post['extract_data_encoding']) && count($post['extract_data_encoding']) == $extract_number &&
+			!empty($post['extract_data_playtime']) && is_array($post['extract_data_playtime']) && count($post['extract_data_playtime']) == $extract_number)
+		{
+			for ($i = 0; $i < $extract_number; $i++)
+			{
+				$extract_linked_data = array(
+					'disc_number' => $post['extract_disc_number'][$i],
+					'track_number' => $post['extract_track_number'][$i],
+					'name' => $post['extract_name'][$i],
+					'album_id' => $post['extract_album_id'][$i],
+					'game_id' => $post['extract_game_id'][$i],
+					'composer_id' => $post['extract_composer_id'][$i]
+				);
+
+				$extract_data = array(
+					'url' => $post['extract_data_url'][$i],
+					'md5' => $post['extract_data_md5'][$i],
+					'filesize' => $post['extract_data_filesize'][$i],
+					'bitrate' => $post['extract_data_bitrate'][$i],
+					'sample_rate' => $post['extract_data_sample_rate'][$i],
+					'encoding' => $post['extract_data_encoding'][$i],
+					'playtime' => $post['extract_data_playtime'][$i],
+				);
+
+				$success = insertExtract($pdo, $extract_data, $extract_linked_data);
+
+				if (!$success)
+				{
+					echo 'Fail to insert the following extract: <br>';
+
+					echo '<pre>';
+					print_r($extract_data);
+					echo '</pre>';
+
+					echo '<pre>';
+					print_r($extract_linked_data);
+					echo '</pre>';
+
+					echo '<hr />';
+				}
+			}
+		}
+	}
+}
+
+/** Update functions **/
+
+function updateExtract($pdo, $post)
+{
+	echo '<pre>';
+	print_r($post);
+	echo '</pre>';
+
+	if (!empty($post['extract_id']) && !empty($post['extract_name']) && !empty($post['extract_game']) && 
+		!empty($post['extract_composer']) && !empty($post['extract_famousness']))
+	{
+		$extract_id = $post['extract_id'];
+		$extract_name = $post['extract_name'];
+		$extract_game = $post['extract_game'];
+		$extract_composer = $post['extract_composer'];
+		$extract_exclude = isset($post['extract_exclude']) ? 1 : 0;
+		$extract_remix = isset($post['extract_remix']) ? 1 : 0;
+		$extract_famousness = $post['extract_famousness'];
+
+		$update = '
+			UPDATE
+				vgbt_extracts
+			SET
+				name = "' . $extract_name . '",
+				game_id = ' . $extract_game . ',
+				composer_id = ' . $extract_composer . ',
+				exclude = ' . $extract_exclude . ',
+				remix = ' . $extract_remix . ',
+				famousness = ' . $extract_famousness . '
+			WHERE
+				id = ' . $extract_id . '
+		';
+
+		var_dump($update);
+
+		$result = $pdo->exec($update);
+
+		var_dump($result);
+
+		if ($result)
+		{
+			echo 'Data successfully updated!<br>';
+		}
+		else
+		{
+			echo 'Fail to update the data...<br>';
+		}
+	}
+	else
+	{
+		echo 'Sorry but the post data doesn\'t contain all needed informations.<br>';
+	}
+
+	return false;
 }
 
 /** Link functions **/

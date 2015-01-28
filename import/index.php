@@ -47,6 +47,8 @@ if (!empty($_POST['input_dir']) &&
 	else if (is_dir(MEDIA_INPUT_FOLDER . $_POST['input_dir']))
 		$input_dir = MEDIA_INPUT_FOLDER . $_POST['input_dir'] . '/';
 
+	$input_dir = str_replace('\\', '/', $input_dir);
+
 	$output_dir = MEDIA_OUTPUT_FOLDER;
 
 	$extracts_data = getMp3Data($input_dir);
@@ -61,8 +63,6 @@ if (!empty($_POST['input_dir']) &&
 
 	foreach($extracts_data as $data)
 	{
-		//$extracts_to_link[] = insertExtract($pdo, $data);
-
 		$extracts_to_link[] = $data;
 
 		if (!empty($data['artist']))
@@ -248,7 +248,7 @@ if (!empty($_POST['input_dir']) &&
 				</td>
 				<td>
 					<audio preload="none" controls>
-				  		<source src="<?php echo $data['url']; ?>" type="audio/mpeg">
+				  		<source src="<?php echo str_replace('\\', '/', $data['url']); ?>" type="audio/mpeg">
 						Your browser does not support the audio element.
 					</audio>
 				</td>
