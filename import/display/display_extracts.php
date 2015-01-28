@@ -6,6 +6,13 @@ require_once(__ROOT__ . 'config/function.php');
 
 <?php	
 
+$orderby = '';
+
+if (isset($_GET['orderby']) && isset($_GET['orderby_type']))
+{
+	$orderby = 'ORDER BY ' . $_GET['orderby'] . ' ' . $_GET['orderby_type'];
+}
+
 $sql = '
 	SELECT
 		e.id as id,
@@ -13,6 +20,7 @@ $sql = '
 		e.exclude as exclude,
 		e.remix as remix,
 		e.famousness as famousness,
+		e.play_time,
 		com.name as composer_name,
 		g.name as game_name,
 		g.release_date as release_date,
@@ -38,11 +46,12 @@ $sql = '
 		eal.extract_id = e.id AND
 		eal.album_id = a.id AND
 		g.game_serie = gs.id
+	' . $orderby . '
 ';
 
-
 $results = $pdo->query($sql);
-echo '<p style="font-size: large; text-align: center;"><b>' . $results->rowCount() . '<b> extracts</p>';
+
+echo '<p style="font-size: large; text-align: center;"><b>' . getExtractNumber($pdo) . '</b> extracts (' . getExtractNumber($pdo, true) . ' real)</p>';
 
 /*
 $results = $results->fetchAll();
@@ -80,6 +89,11 @@ echo '</pre>';
 		<th>Album</th>
 		<th>Disc</th>
 		<th>Track number</th>
+		<th>
+			<a href="?orderby=e.play_time&orderby_type=<?php echo (isset($_GET['orderby_type']) && $_GET['orderby_type'] == 'DESC') ? 'ASC' : 'DESC'; ?>">
+				Play time
+			</a>
+		</th>
 		<th>File</th>
 		<th>Actions</th>
 	</tr>
@@ -100,6 +114,7 @@ echo '</pre>';
 			<td class="extract_album"><?php echo $data->album_name; ?></td>
 			<td class="extract_disc_number"><?php echo $data->disc_number; ?></td>
 			<td class="extract_track_number"><?php echo $data->track_number; ?></td>
+			<td><?php echo $data->play_time; ?></td>
 			<td>
 				<audio preload="none" controls>
 			  		<source src="<?php echo str_replace(__ROOT__, '', MEDIA_OUTPUT_FOLDER . $data->id . '.mp3'); ?>" type="audio/mpeg">
@@ -107,7 +122,7 @@ echo '</pre>';
 				</audio>
 			</td>
 			<td class="extract_action">
-				<a href="#" onclick="createUpdateForm(<?php echo $data->id; ?>)">Update</a>
+				<a href="../update/update_extract.php?id=<?php echo $data->id; ?>">Update</a>
 			</td>
 		</tr>
 		<?php

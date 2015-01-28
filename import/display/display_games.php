@@ -20,7 +20,8 @@ $sql = 'SELECT
 			vgbt_game_console_links as gcl
 		WHERE
 			g.id = gcl.game_id AND
-			c.id = gcl.console_id
+			c.id = gcl.console_id AND
+			g.game_serie = gs.id
 ';
 
 $results = $pdo->query($sql);

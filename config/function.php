@@ -6,15 +6,14 @@ require_once(__ROOT__ . 'libs/getid3/getid3.php');
 
 /** API **/
 
-function getExtractNumber($pdo)
+function getExtractNumber($pdo, $real = false)
 {
-	$sql = $pdo->query('
-		SELECT 
-			COUNT(*) 
-		FROM 
-			vgbt_extracts
-		'
-	);
+	$sql = 'SELECT COUNT(*) FROM vgbt_extracts';
+
+	if (!$real)
+		$sql .=  ' WHERE exclude = false';
+
+	$sql = $pdo->query($sql);
 	
 	return $sql->fetchColumn();
 }
@@ -29,7 +28,7 @@ function getRandomExtractQuiz($pdo, $questionNumber = 1)
 		GROUP BY 
 			name 
 		ORDER BY 
-			RAND() 
+			RAND()
 		LIMIT 
 			' . ($questionNumber + ($questionNumber * 3))
 	);
@@ -178,7 +177,7 @@ function getMp3Data($input_dir)
 					$title = str_replace('.' . $extension, '', $file);
 				}
 
-				$regex_pattern = "#([0-9]+)\s*-\s*(.*)#";
+				$regex_pattern = "#([0-9]+).*\s*-\s*(.*)#";
 				$matches = array();
 				preg_match($regex_pattern, $title, $matches);
 
@@ -326,11 +325,6 @@ function insert_extracts($pdo, $post)
 {
 	if (!empty($post['extract_track_number']) && is_array($post['extract_track_number']))
 	{
-		echo '<pre>';
-		print_r($post);
-		echo '</pre>';
-
-		die();
 		$extract_number = count($post['extract_track_number']);
 
 		if (!empty($post['extract_name']) && is_array($post['extract_name']) && count($post['extract_name']) == $extract_number &&
@@ -391,10 +385,6 @@ function insert_extracts($pdo, $post)
 
 function updateExtract($pdo, $post)
 {
-	echo '<pre>';
-	print_r($post);
-	echo '</pre>';
-
 	if (!empty($post['extract_id']) && !empty($post['extract_name']) && !empty($post['extract_game']) && 
 		!empty($post['extract_composer']) && !empty($post['extract_famousness']))
 	{
@@ -420,11 +410,7 @@ function updateExtract($pdo, $post)
 				id = ' . $extract_id . '
 		';
 
-		var_dump($update);
-
 		$result = $pdo->exec($update);
-
-		var_dump($result);
 
 		if ($result)
 		{
