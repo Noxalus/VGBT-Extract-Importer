@@ -39,20 +39,12 @@ function smartReadFile($location, $filename, $mimeType = 'application/octet-stre
 		$end = min($begin + $sizeToTake, $size);
 	}
 
-	if (isset($_REQUEST['time']))
-		header('HTTP/1.1 206 Partial Content');
-	else
-		header('HTTP/1.1 200 OK');
+	header('HTTP/1.1 200 OK');
 
 	header("Content-Type: $mimeType"); 
 	header('Cache-Control: public, must-revalidate, max-age=0');
 	header('Pragma: no-cache');  
-	header('Accept-Ranges: bytes');
 	header('Content-Length:' . (($end - $begin) + 1));
-
-	if (isset($_REQUEST['time']))
-		header("Content-Range: bytes $begin-$end/$size");
-
 	header("Content-Disposition: inline; filename=$filename");
 	header("Content-Transfer-Encoding: binary");
 	header("Last-Modified: $time");
