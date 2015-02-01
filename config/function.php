@@ -695,4 +695,13 @@ function getAllGamesAsAssociativeArray($pdo, $excludeGames = null)
 	return $games;
 }
 
+// Utils
+
+function printArray($array)
+{
+	echo '<pre>';
+	print_r($array);
+	echo '</pre>';
+}
+
 ?>

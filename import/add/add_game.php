@@ -12,7 +12,7 @@ if (!empty($_POST['game_name']) && !empty($_POST['game_serie']))
 	$game_name = $_POST['game_name'];
 	$game_serie_id = $_POST['game_serie'];
 	$release_date = $_POST['release_date'];
-	$console_id = $_POST['console'];
+	$console_ids = $_POST['consoles'];
 
 	$sql = $pdo->prepare('SELECT id FROM vgbt_games WHERE name = ?');
 	$sql->bindValue(1, $game_name, PDO::PARAM_STR);
@@ -66,11 +66,16 @@ if (!empty($_POST['game_name']) && !empty($_POST['game_serie']))
 
 				$sql = $pdo->prepare($insert);
 				$sql->bindValue(1, $last_insert_id, PDO::PARAM_INT);
-				$sql->bindValue(2, $console_id, PDO::PARAM_INT);
 
-				$success = $sql->execute();
-			    if ($success)
-					echo '<b>' . $game_name . '</b> has been successfully linked with its console into the database!<br>';
+				foreach ($console_ids as $console_id)
+				{
+					$sql->bindValue(2, $console_id, PDO::PARAM_INT);
+
+					$success = $sql->execute();
+
+				    if ($success)
+						echo '<b>' . $game_name . '</b> has been successfully linked with its console into the database!<br>';
+				}
 			}
 		} catch (PDOException $e) 
 		{
@@ -105,9 +110,8 @@ else
 
 	<p>
 		<p>
-			<label for="console">Console</label>
-			<select name="console" id="console">
-				<option value="-1">None</option>
+			<label for="consoles">Console</label>
+			<select name="consoles[]" id="consoles" multiple>
 				<?php
 				foreach($consoles as $console)
 				{
