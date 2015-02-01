@@ -1,6 +1,6 @@
 <?php
 
-header("Content-type: text/xml;charset=utf-8");  
+//header("Content-type: text/xml;charset=utf-8");  
 
 require_once('../config/config.php');
 require_once(__ROOT__ . '/config/mysql.php');
@@ -13,6 +13,34 @@ if (!empty($_GET['extractNumber']))
 	echo '<?xml version="1.0" encoding="UTF-8"?>';
 	echo "\n";
 	echo '<extract_number>' . $result . '</extract_number>';
+}
+else if (isset($_GET['gameSerie']) && is_numeric($_GET['gameSerie']))
+{
+	$gameSerieId = $_GET['gameSerie'];
+	if ($gameSerieId > 0)
+	{
+		$games = getAllGamesFromGameSerie($pdo, $gameSerieId);
+
+		echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+		echo "<games>\n";
+		foreach ($games as $game) 
+		{
+			echo '	<game id="' . $game['id'] . '" game_serie_id="' . $gameSerieId . '">' . $game['name'] . '</game>' . "\n";
+		}
+		echo "</games>";
+	}
+	else
+	{
+		$gameSeries = getAllGameSeries($pdo);
+
+		echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+		echo "<game_series>\n";
+		foreach ($gameSeries as $gameSerie) 
+		{
+			echo '	<game_serie id="' . $gameSerie['id'] . '">' . $gameSerie['name'] . '</game_serie>' . "\n";
+		}
+		echo "</game_series>";
+	}
 }
 else
 {
@@ -29,17 +57,37 @@ else
 	if (!empty($_GET['type']) && in_array($_GET['type'], $possibleTypes))
 		$type = $_GET['type'];
 
+	$excludeGames = array();
+	// Exclude games
+	if (!empty($_GET['excludeGames']))
+	{
+		$excludeGames = $_GET['excludeGames'];
+		$excludeGames = explode(',', $excludeGames);
+	}
+
+	// Exclude game series
+	if (!empty($_GET['excludeGameSeries']))
+	{
+		$excludeGameSeries = $_GET['excludeGameSeries'];
+		$excludeGameSeries = explode(',', $excludeGameSeries);
+
+		for ($i = 0; $i < count($excludeGameSeries); $i++) 
+		{ 
+			$excludeGames = array_unique(array_merge($excludeGames, getAllGamesFromGameSerie($pdo, $excludeGameSeries[$i], true)));
+		}
+	}
+
 	if ($type == 'name')
-		$results = getRandomExtractQuiz($pdo, $questionNumber);
+		$results = getRandomExtractQuiz($pdo, $questionNumber, $excludeGames);
 	else if ($type == 'game')
 	{
-		$games = getAllGamesAsAssociativeArray($pdo);
-		$results = getRandomGameQuiz($pdo, $questionNumber);
+		$games = getAllGamesAsAssociativeArray($pdo, $excludeGames);
+		$results = getRandomGameQuiz($pdo, $questionNumber, $excludeGames);
 	}
 	else if ($type == 'composer')
 	{
 		$composers = getAllComposersAsAssociativeArray($pdo);
-		$results = getRandomComposerQuiz($pdo, $questionNumber);
+		$results = getRandomComposerQuiz($pdo, $questionNumber, $excludeGames);
 	}
 
 	$questions = array();

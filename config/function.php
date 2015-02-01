@@ -18,15 +18,34 @@ function getExtractNumber($pdo, $real = false)
 	return $sql->fetchColumn();
 }
 
-function getRandomExtractQuiz($pdo, $questionNumber = 1)
+function getWherePredicate($excludeGames)
 {
+	$where = '';
+
+	if ($excludeGames != null && is_array($excludeGames))
+	{
+		$where = 'WHERE e.game_id != ' . $excludeGames[0];
+		foreach($excludeGames as $excludeGameId) 
+			$where .= ' AND e.game_id != ' . $excludeGameId;
+	}
+
+	return $where;
+}
+
+function getRandomExtractQuiz($pdo, $questionNumber = 1, $excludeGames = null)
+{
+	$where = getWherePredicate($excludeGames);
+
 	$sql = $pdo->query('
 		SELECT 
-			id, name
+			e.id, 
+			e.name
 		FROM 
-			vgbt_extracts
+			vgbt_extracts e,
+			vgbt_games g 
+			' . $where . '
 		GROUP BY 
-			name 
+			e.name 
 		ORDER BY 
 			RAND()
 		LIMIT 
@@ -36,33 +55,44 @@ function getRandomExtractQuiz($pdo, $questionNumber = 1)
 	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
 }
 
-function getRandomGameQuiz($pdo, $questionNumber = 1)
+function getRandomGameQuiz($pdo, $questionNumber = 1, $excludeGames = null)
 {
-	$sql = $pdo->query('
+	$where = getWherePredicate($excludeGames);
+
+	$request = '
 		SELECT 
-			id, game_id
+			e.id, 
+			e.game_id
 		FROM 
-			vgbt_extracts
+			vgbt_extracts e,
+			vgbt_games g 
+			' . $where . '
 		GROUP BY 
-			name 
+			e.name 
 		ORDER BY 
 			RAND() 
 		LIMIT 
-			' . $questionNumber
-	);
+			' . $questionNumber;
+
+	$sql = $pdo->query($request);
 	
 	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
 }
 
-function getRandomComposerQuiz($pdo, $questionNumber = 1)
+function getRandomComposerQuiz($pdo, $questionNumber = 1, $excludeGames = null)
 {
+	$where = getWherePredicate($excludeGames);
+
 	$sql = $pdo->query('
 		SELECT 
-			id, composer_id
+			e.id, 
+			e.composer_id
 		FROM 
-			vgbt_extracts
+			vgbt_extracts e,
+			vgbt_games g 
+			' . $where . '
 		GROUP BY 
-			name 
+			e.name 
 		ORDER BY 
 			RAND() 
 		LIMIT 
@@ -594,6 +624,21 @@ function getAllGames($pdo)
 	return $sql->fetchAll();
 }
 
+function getAllGamesFromGameSerie($pdo, $gameSerie, $onlyId = false)
+{
+	$select = 'id';
+
+	if (!$onlyId)
+		$select .= ', name';
+
+	$sql = $pdo->query('SELECT ' . $select . ' FROM vgbt_games WHERE game_serie = ' . $gameSerie);
+
+	if ($onlyId)
+		return $sql->fetchAll(PDO::FETCH_COLUMN);
+	else
+		return $sql->fetchAll();
+}
+
 function getAllAlbums($pdo)
 {
 	$sql = $pdo->query('SELECT id, name FROM vgbt_albums');
@@ -604,6 +649,13 @@ function getAllAlbums($pdo)
 function getAllConsoles($pdo)
 {
 	$sql = $pdo->query('SELECT id, name FROM vgbt_consoles');
+
+	return $sql->fetchAll();
+}
+
+function getAllGameSeries($pdo)
+{
+	$sql = $pdo->query('SELECT id, name FROM vgbt_game_series');
 
 	return $sql->fetchAll();
 }
@@ -622,9 +674,17 @@ function getAllComposersAsAssociativeArray($pdo)
 	return $composers;
 }
 
-function getAllGamesAsAssociativeArray($pdo)
+function getAllGamesAsAssociativeArray($pdo, $excludeGames = null)
 {
-	$sql = $pdo->query('SELECT id, name FROM vgbt_games');
+	$where = '';
+	if ($excludeGames != null && is_array($excludeGames))
+	{
+		$where = 'WHERE id != ' . $excludeGames[0];
+		foreach($excludeGames as $excludeGameId) 
+			$where .= ' AND id != ' . $excludeGameId;
+	}
+
+	$sql = $pdo->query('SELECT id, name FROM vgbt_games ' . $where);
 
 	$games = array();
 
