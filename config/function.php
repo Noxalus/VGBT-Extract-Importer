@@ -20,11 +20,10 @@ function getExtractNumber($pdo, $real = false)
 
 function getWherePredicate($excludeGames)
 {
-	$where = '';
+	$where = 'WHERE e.exclude = false';
 
 	if ($excludeGames != null && is_array($excludeGames))
 	{
-		$where = 'WHERE e.game_id != ' . $excludeGames[0];
 		foreach($excludeGames as $excludeGameId) 
 			$where .= ' AND e.game_id != ' . $excludeGameId;
 	}
@@ -40,9 +39,9 @@ function getRandomExtractQuiz($pdo, $questionNumber = 1, $excludeGames = null)
 		SELECT 
 			e.id, 
 			e.name
-		FROM 
+		FROM
 			vgbt_extracts e,
-			vgbt_games g 
+			vgbt_games g
 			' . $where . '
 		GROUP BY 
 			e.name 
@@ -60,7 +59,7 @@ function getRandomGameQuiz($pdo, $questionNumber = 1, $excludeGames = null)
 	$where = getWherePredicate($excludeGames);
 
 	$request = '
-		SELECT 
+		SELECT
 			e.id, 
 			e.game_id
 		FROM 
@@ -84,7 +83,7 @@ function getRandomComposerQuiz($pdo, $questionNumber = 1, $excludeGames = null)
 	$where = getWherePredicate($excludeGames);
 
 	$sql = $pdo->query('
-		SELECT 
+		SELECT
 			e.id, 
 			e.composer_id
 		FROM 
