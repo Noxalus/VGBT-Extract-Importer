@@ -626,11 +626,17 @@ function getAllGames($pdo)
 function getAllGamesFromGameSerie($pdo, $gameSerie, $onlyId = false)
 {
 	$select = 'id';
+	$where = 'WHERE game_serie';
+
+	if ($gameSerie == 0)
+		$where .= ' IS NULL';
+	else
+		$where .= ' = ' . $gameSerie;
 
 	if (!$onlyId)
 		$select .= ', name';
 
-	$sql = $pdo->query('SELECT ' . $select . ' FROM vgbt_games WHERE game_serie = ' . $gameSerie);
+	$sql = $pdo->query('SELECT ' . $select . ' FROM vgbt_games ' . $where);
 
 	if ($onlyId)
 		return $sql->fetchAll(PDO::FETCH_COLUMN);

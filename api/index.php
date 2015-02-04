@@ -17,7 +17,8 @@ if (!empty($_GET['extractNumber']))
 else if (isset($_GET['gameSerie']) && is_numeric($_GET['gameSerie']))
 {
 	$gameSerieId = $_GET['gameSerie'];
-	if ($gameSerieId > 0)
+	
+	if ($gameSerieId >= 0)
 	{
 		$games = getAllGamesFromGameSerie($pdo, $gameSerieId);
 
