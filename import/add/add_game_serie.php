@@ -1,12 +1,22 @@
 <?php
-
 require_once('../../config/config.php');
+?>
 
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+
+<?php
 if (!empty($_POST['game_serie_name']))
 {
 	require_once(__ROOT__ . 'config/mysql.php');
 
 	$game_serie_name = $_POST['game_serie_name'];
+
+	var_dump($game_serie_name);
 
 	$sql = $pdo->prepare('SELECT id FROM vgbt_game_series WHERE name = ?');
 	$sql->bindValue(1, $game_serie_name, PDO::PARAM_STR);
@@ -50,7 +60,6 @@ if (!empty($_POST['game_serie_name']))
 else
 {
 ?>
-
 <h1>Add a game serie</h1>
 
 <form method="POST">
@@ -67,3 +76,7 @@ else
 <?php
 }
 ?>
+
+</body>
+
+</html>

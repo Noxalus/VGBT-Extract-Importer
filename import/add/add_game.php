@@ -4,6 +4,13 @@ require_once(__ROOT__ . 'config/mysql.php');
 require_once(__ROOT__ . 'config/function.php');
 ?>
 
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+
 <h1>Display games</h1>
 
 <?php	
@@ -145,3 +152,6 @@ else
 <?php
 }
 ?>
+
+</body>
+</html>

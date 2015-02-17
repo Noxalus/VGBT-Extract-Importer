@@ -2,8 +2,16 @@
 require_once('../../config/config.php');
 require_once(__ROOT__ . 'config/mysql.php');
 require_once(__ROOT__ . 'config/function.php');
+?>
 
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
 
+<?php
 if (isset($_GET['id']) && is_numeric($_GET['id']))
 {
 	// If form has already been submited
@@ -102,3 +110,8 @@ else
 {
 	echo 'You have nothing to do here!';
 }
+
+?>
+
+</body>
+</html>

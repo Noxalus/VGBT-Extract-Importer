@@ -1,7 +1,15 @@
 <?php
-
 require_once('../../config/config.php');
+?>
 
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+
+<?php
 if (!empty($_POST['composer_name']))
 {
 	require_once(__ROOT__ . 'config/mysql.php');
@@ -67,3 +75,5 @@ else
 <?php
 }
 ?>
+</body>
+</html>

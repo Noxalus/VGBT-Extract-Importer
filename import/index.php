@@ -304,7 +304,6 @@ else
 <?php
 }
 ?>
-	
 
 </body>
 </html>
