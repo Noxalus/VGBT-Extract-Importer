@@ -644,6 +644,16 @@ function getAllGamesFromGameSerie($pdo, $gameSerie, $onlyId = false)
 		return $sql->fetchAll();
 }
 
+function getAllExtractsFromGame($pdo, $game)
+{
+	$select = 'id, name';
+	$where = 'WHERE game_id = ' . $game;
+
+	$sql = $pdo->query('SELECT ' . $select . ' FROM vgbt_extracts ' . $where);
+
+	return $sql->fetchAll();
+}
+
 function getAllAlbums($pdo)
 {
 	$sql = $pdo->query('SELECT id, name FROM vgbt_albums');
@@ -708,6 +718,14 @@ function printArray($array)
 	echo '<pre>';
 	print_r($array);
 	echo '</pre>';
+}
+
+function writeLog($label, $text)
+{
+	$filename = $label . '-' . date('d_m_Y-h_i_s') . '.log';
+	$filepath = __ROOT__ . 'logs/' . $filename;
+
+	file_put_contents($filepath, $text);
 }
 
 ?>
