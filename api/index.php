@@ -1,6 +1,6 @@
 <?php
 
-//header("Content-type: text/xml;charset=utf-8");  
+header("Content-type: text/xml;charset=utf-8");  
 
 require_once('../config/config.php');
 require_once(__ROOT__ . '/config/mysql.php');
@@ -33,12 +33,35 @@ else if (isset($_GET['gameSerie']) && is_numeric($_GET['gameSerie']))
 	else
 	{
 		$gameSeries = getAllGameSeries($pdo);
+		$gameSeries[] = array('id' => 0, 'name' => 'Others');
 
 		echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
 		echo "<game_series>\n";
 		foreach ($gameSeries as $gameSerie) 
 		{
-			echo '	<game_serie id="' . $gameSerie['id'] . '">' . $gameSerie['name'] . '</game_serie>' . "\n";
+			echo '  <game_serie id="' . $gameSerie['id'] . '" name="' . htmlspecialchars($gameSerie['name']) . '">' . "\n";
+
+			$games = getAllGamesFromGameSerie($pdo, $gameSerie['id']);
+
+			echo "    <games>\n";
+			foreach ($games as $game) 
+			{
+				echo '      <game id="' . $game['id'] . '" name="' . htmlspecialchars($game['name']) . '">' . "\n";
+
+				$extracts = getAllExtractsFromGame($pdo, $game['id']);
+
+				echo "        <extracts>\n";
+				foreach ($extracts as $extract) 
+				{
+					echo '          <extract id="' . $extract['id'] . '">' . htmlspecialchars($extract['name']) . '</extract>' . "\n";
+				}
+				echo "        </extracts>\n";
+
+				echo '      </game>' . "\n";
+			}
+			echo "    </games>\n";
+
+			echo '  </game_serie>' . "\n";
 		}
 		echo "</game_series>";
 	}
@@ -105,26 +128,30 @@ else
 	{
 		$counter = 0;
 		$currentIndex = -1;
-		foreach ($results as $key => $value)
+
+		if (count($results) >= 4)
 		{
-			if ($counter % 4 == 0)
+			foreach ($results as $key => $value)
 			{
-				$currentIndex++;
-				$questions[$currentIndex] = array(
-					'answer' => rand(0, 3),
-					'extract_id' => -1,
-					'questions' => array()
-				);
+				if ($counter % 4 == 0)
+				{
+					$currentIndex++;
+					$questions[$currentIndex] = array(
+						'answer' => rand(0, 3),
+						'extract_id' => -1,
+						'questions' => array()
+					);
+				}
+				
+				if ($counter % 4 == $questions[$currentIndex]['answer'])
+					$questions[$currentIndex]['extract_id'] = $key;
+
+				$questions[$currentIndex]['questions'][] = htmlspecialchars($value);
+				$counter++;
 			}
-			
-			if ($counter % 4 == $questions[$currentIndex]['answer'])
-				$questions[$currentIndex]['extract_id'] = $key;
 
-			$questions[$currentIndex]['questions'][] = htmlspecialchars($value);
-			$counter++;
+			$currentIndex++;
 		}
-
-		$currentIndex++;
 	}
 	else if ($type == 'game' || $type == 'composer')
 	{
@@ -249,25 +276,30 @@ else
 	echo '</pre>';
 	*/
 
-	echo '<?xml version="1.0" encoding="UTF-8"?>';
-	echo "\n";
-	echo '<quiz>';
-	echo "\n";
+	$output = '';
+	$output .= '<?xml version="1.0" encoding="UTF-8"?>';
+	$output .= "\n";
+	$output .= '<quiz>';
+	$output .= "\n";
 
 	foreach ($questions as $value)
 	{
-		echo '	<question answer="' . $value['answer'] . '" id="' . $value['extract_id'] . '">';
-		echo "\n";
+		$output .= '	<question answer="' . $value['answer'] . '" id="' . $value['extract_id'] . '">';
+		$output .= "\n";
 		
 		foreach ($value['questions'] as $data)
 		{
-			echo '		<answer>' . $data . '</answer>';
-			echo "\n";	
+			$output .= '		<answer>' . $data . '</answer>';
+			$output .= "\n";	
 		}
 
-		echo '	</question>';
-		echo "\n";
+		$output .= '	</question>';
+		$output .= "\n";
 	}
 
-	echo '</quiz>';
+	$output .= '</quiz>';
+
+	writeLog('Quiz', $output);
+
+	echo $output;
 }
