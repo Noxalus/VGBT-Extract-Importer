@@ -1,6 +1,6 @@
 <?php
 
-header("Content-type: text/xml;charset=utf-8");  
+header("Content-type: text/xml;charset=utf-8");
 
 require_once('../config/config.php');
 require_once(__ROOT__ . '/config/mysql.php');
@@ -81,6 +81,14 @@ else
 	if (!empty($_GET['type']) && in_array($_GET['type'], $possibleTypes))
 		$type = $_GET['type'];
 
+	$excludeTitles = array();
+	// Exclude titles
+	if (!empty($_GET['excludeTitles']))
+	{
+		$excludeTitles = $_GET['excludeTitles'];
+		$excludeTitles = explode(',', $excludeTitles);
+	}
+
 	$excludeGames = array();
 	// Exclude games
 	if (!empty($_GET['excludeGames']))
@@ -102,16 +110,16 @@ else
 	}
 
 	if ($type == 'name')
-		$results = getRandomExtractQuiz($pdo, $questionNumber, $excludeGames);
+		$results = getRandomExtractQuiz($pdo, $questionNumber, $excludeGames, $excludeTitles);
 	else if ($type == 'game')
 	{
 		$games = getAllGamesAsAssociativeArray($pdo, $excludeGames);
-		$results = getRandomGameQuiz($pdo, $questionNumber, $excludeGames);
+		$results = getRandomGameQuiz($pdo, $questionNumber, $excludeGames, $excludeTitles);
 	}
 	else if ($type == 'composer')
 	{
 		$composers = getAllComposersAsAssociativeArray($pdo);
-		$results = getRandomComposerQuiz($pdo, $questionNumber, $excludeGames);
+		$results = getRandomComposerQuiz($pdo, $questionNumber, $excludeGames, $excludeTitles);
 	}
 
 	$questions = array();

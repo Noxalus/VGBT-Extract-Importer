@@ -18,7 +18,7 @@ function getExtractNumber($pdo, $real = false)
 	return $sql->fetchColumn();
 }
 
-function getWherePredicate($excludeGames)
+function getWherePredicate($excludeGames, $excludeTitles = null)
 {
 	$where = 'WHERE e.exclude = false';
 
@@ -28,12 +28,18 @@ function getWherePredicate($excludeGames)
 			$where .= ' AND e.game_id != ' . $excludeGameId;
 	}
 
+	if ($excludeTitles != null && is_array($excludeTitles))
+	{
+		foreach($excludeTitles as $excludeTitleId) 
+			$where .= ' AND e.id != ' . $excludeTitleId;
+	}
+
 	return $where;
 }
 
-function getRandomExtractQuiz($pdo, $questionNumber = 1, $excludeGames = null)
+function getRandomExtractQuiz($pdo, $questionNumber = 1, $excludeGames = null, $excludeTitles = null)
 {
-	$where = getWherePredicate($excludeGames);
+	$where = getWherePredicate($excludeGames, $excludeTitles);
 
 	$sql = $pdo->query('
 		SELECT 
@@ -54,9 +60,9 @@ function getRandomExtractQuiz($pdo, $questionNumber = 1, $excludeGames = null)
 	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
 }
 
-function getRandomGameQuiz($pdo, $questionNumber = 1, $excludeGames = null)
+function getRandomGameQuiz($pdo, $questionNumber = 1, $excludeGames = null, $excludeTitles = null)
 {
-	$where = getWherePredicate($excludeGames);
+	$where = getWherePredicate($excludeGames, $excludeTitles);
 
 	$request = '
 		SELECT
@@ -78,9 +84,9 @@ function getRandomGameQuiz($pdo, $questionNumber = 1, $excludeGames = null)
 	return $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_UNIQUE);
 }
 
-function getRandomComposerQuiz($pdo, $questionNumber = 1, $excludeGames = null)
+function getRandomComposerQuiz($pdo, $questionNumber = 1, $excludeGames = null, $excludeTitles = null)
 {
-	$where = getWherePredicate($excludeGames);
+	$where = getWherePredicate($excludeGames, $excludeTitles);
 
 	$sql = $pdo->query('
 		SELECT
