@@ -733,6 +733,13 @@ function writeLog($label, $text)
 
 	$completeText = "";
 
+	$completeText .= "==================\n";
+	$completeText .= "== Complete URL ==\n";
+	$completeText .= "==================\n\n";
+
+	$completeText .= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n";
+	$completeText .= "\n";
+
 	if (count($_GET) > 0)
 	{
 		$completeText .= "==================\n";
