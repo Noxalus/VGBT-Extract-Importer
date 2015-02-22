@@ -731,7 +731,27 @@ function writeLog($label, $text)
 	$filename = $label . '-' . date('d_m_Y-h_i_s') . '.log';
 	$filepath = __ROOT__ . 'logs/' . $filename;
 
-	file_put_contents($filepath, $text);
+	$completeText = "";
+
+	if (count($_GET) > 0)
+	{
+		$completeText .= "==================\n";
+		$completeText .= "=== Parameters ===\n";
+		$completeText .= "==================\n\n";
+
+		foreach ($_GET as $key => $value)
+		{
+			$completeText .= $key . ' => ' . $value . "\n";
+		}
+		$completeText .= "\n";
+	}
+
+	$completeText .= "==================\n";
+	$completeText .= "===== Content ====\n";
+	$completeText .= "==================\n\n";
+	$completeText .= $text;
+
+	file_put_contents($filepath, $completeText);
 }
 
 ?>
