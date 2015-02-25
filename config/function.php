@@ -728,7 +728,7 @@ function printArray($array)
 
 function writeLog($label, $text)
 {
-	$filename = $label . '-' . date('d_m_Y-h_i_s') . '.log';
+	$filename = $label . '-' . date('d_m_Y-H_i_s') . '.log';
 	$filepath = __ROOT__ . 'logs/' . $filename;
 
 	$completeText = "";

@@ -137,10 +137,14 @@ else
 		$counter = 0;
 		$currentIndex = -1;
 
-		if (count($results) >= 4)
+		$resultNumber = count($results);
+		if ($resultNumber >= 4)
 		{
 			foreach ($results as $key => $value)
 			{
+				if ($resultNumber - $counter < 4)
+					break;
+
 				if ($counter % 4 == 0)
 				{
 					$currentIndex++;
