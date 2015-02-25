@@ -142,11 +142,11 @@ else
 		{
 			foreach ($results as $key => $value)
 			{
-				if ($resultNumber - $counter < 4)
-					break;
-
 				if ($counter % 4 == 0)
 				{
+					if ($resultNumber - $counter < 4)
+						break;
+
 					$currentIndex++;
 					$questions[$currentIndex] = array(
 						'answer' => rand(0, 3),
