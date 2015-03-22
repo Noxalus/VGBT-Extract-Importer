@@ -4,6 +4,14 @@ require_once(__ROOT__ . 'config/mysql.php');
 require_once(__ROOT__ . 'config/function.php');
 ?>
 
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Display games</title>
+</head>
+<body>
+
 <h1>Display games</h1>
 
 <?php	
@@ -49,10 +57,13 @@ echo '</pre>';
 		<tr>
 			<td><?php echo $data->game_name; ?></td>
 			<td><?php echo $data->game_serie_name; ?></td>
-			<td><?php echo $data->release_date; ?></td>
 			<td><?php echo $data->console_name; ?></td>
+			<td><?php echo $data->release_date; ?></td>
 		</tr>
 		<?php
 	}
 	?>
 </table>
+
+</body>
+</html>
