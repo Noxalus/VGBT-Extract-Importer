@@ -4,6 +4,13 @@ require_once('config.php');
 require_once('mysql.php');
 require_once(__ROOT__ . 'libs/getid3/getid3.php');
 
+/** Utils **/
+
+function pathToUrl($path)
+{
+	return str_replace($_SERVER['DOCUMENT_ROOT'], 'http://' . $_SERVER['HTTP_HOST'] . '/', $path);
+}
+
 /** API **/
 
 function getExtractNumber($pdo, $real = false)

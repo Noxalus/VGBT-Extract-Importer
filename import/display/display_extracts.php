@@ -116,7 +116,7 @@ echo '</pre>';
 			<td><?php echo $data->play_time; ?></td>
 			<td>
 				<audio preload="none" controls>
-			  		<source src="<?php echo str_replace(__ROOT__, '', MEDIA_OUTPUT_FOLDER . $data->id . '.mp3'); ?>" type="audio/mpeg">
+			  		<source src="<?php echo pathToUrl(MEDIA_OUTPUT_FOLDER . $data->id . '.mp3'); ?>" type="audio/mpeg">
 					Your browser does not support the audio element.
 				</audio>
 			</td>
